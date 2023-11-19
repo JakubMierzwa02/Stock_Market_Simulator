@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(StockMarketSimulator)
+set(This StockMarketSimulator)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -10,9 +10,11 @@ find_package(Boost REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(StockMarketSimulator src/main.cpp)
+add_executable(This src/main.cpp)
 
-target_link_libraries(StockMarketSimulator ${Boost_LIBRARIES})
+target_link_libraries(This ${Boost_LIBRARIES})
 
-#enable_testing()
-#add_subdirectory(test)
+add_library(${This} STATIC src/main.cpp)
+
+enable_testing()
+add_subdirectory(test)
