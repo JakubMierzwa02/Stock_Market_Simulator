@@ -34,6 +34,19 @@ namespace analyzer
             }
             return sum / data.size();
         }
+
+        double calculateVariance(const std::vector<double>& data)
+        {
+            if (data.size() < 2)
+                return 0;
+            double mean = calculateAverage(data);
+            double sumOfSquares = 0.0;
+            for (auto price : data)
+            {
+                sumOfSquares += (price - mean) * (price - mean);
+            }
+            return sumOfSquares / (data.size() - 1);
+        }
     };
 
     class DataAnalyzer
@@ -56,6 +69,8 @@ namespace analyzer
             }
             double averagePrice = processor.calculateAverage(closingPrices);
             std::cout << "Average closing price: " << averagePrice << std::endl;
+            double variance = processor.calculateVariance(closingPrices);
+            std::cout << "Variance: " << variance << std::endl;
         }
     };
 }
