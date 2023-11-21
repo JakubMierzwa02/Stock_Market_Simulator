@@ -26,7 +26,7 @@ namespace analyzer
         double calculateAverage(const std::vector<double>& data)
         {
             if (data.empty())
-                return 0;
+                return 0.0;
             double sum = 0.0;
             for (auto price : data)
             {
@@ -38,7 +38,7 @@ namespace analyzer
         double calculateVariance(const std::vector<double>& data)
         {
             if (data.size() < 2)
-                return 0;
+                return 0.0;
             double mean = calculateAverage(data);
             double sumOfSquares = 0.0;
             for (auto price : data)

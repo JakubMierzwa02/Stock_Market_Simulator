@@ -6,6 +6,7 @@ add_subdirectory(googletest)
 
 add_executable(StockMarketSimulatorTest
     test1.cpp
+    test2.cpp
 )
 
 target_link_libraries(StockMarketSimulatorTest PUBLIC
