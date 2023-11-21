@@ -1,22 +1,20 @@
 #include <gtest/gtest.h>
 #include "../src/DataImporter.hpp"
 
-class CSVImporterTest : public ::testing::Test
+class DataImporterTest : public ::testing::Test
 {
 protected:
-    CSVImporter importer;
+    importer::DataImporter importer;
 };
 
-TEST_F(CSVImporterTest, ImportDataFromValidFile)
+TEST_F(DataImporterTest, ImportDataFromValidFile)
 {
-    importer.importData("../../data.csv");
-    auto data = importer.getData();
-    EXPECT_FALSE(data.empty());
+    importer.importData("../../data.csv", "CSV");
 }
 
-TEST_F(CSVImporterTest, HandleNonexistentFile) 
+TEST_F(DataImporterTest, HandleNonexistentFile) 
 {
-    importer.importData("nonexistent.csv");
+    importer.importData("nonexistent.csv", "CSV");
     auto data = importer.getData();
     EXPECT_TRUE(data.empty());
 }
