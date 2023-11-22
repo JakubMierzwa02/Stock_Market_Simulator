@@ -55,9 +55,9 @@ namespace analyzer
     private:
 
     public:
-        static double calculateRSI(const std::vector<double>& data, int period /* = 14 */)
+        static double calculateRSI(const std::vector<double>& data, int period = 14)
         {
-            if (data.size() < period)
+            if (data.size() < period + 1)
                 return 0.0;
             double avgGain = 0.0, avgLoss = 0.0;
 
@@ -65,7 +65,7 @@ namespace analyzer
             {
                 double change = data[i] - data[i - 1];
                 avgGain += std::max(change, 0.0);
-                avgGain += std::max(-change, 0.0);
+                avgLoss += std::max(-change, 0.0);
             }
             avgGain /= period;
             avgLoss /= period;
@@ -109,7 +109,7 @@ namespace analyzer
             std::cout << "Average closing price: " << averagePrice << std::endl;
             double variance = processor.calculateVariance(closingPrices);
             std::cout << "Variance: " << variance << std::endl;
-            double rsi = indicator.calculateRSI(closingPrices, closingPrices.size());
+            double rsi = indicator.calculateRSI(closingPrices);
             std::cout << "RSI: " << rsi << std::endl;
         }
     };

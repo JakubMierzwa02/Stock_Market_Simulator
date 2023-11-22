@@ -32,10 +32,14 @@ TEST_F(DataAnalyzerTest, CalculateVariance)
 TEST_F(DataAnalyzerTest, CalculateRSI)
 {
     std::vector<double> continuousGains = {100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120, 122, 124, 126, 128};
-    double rsiGains = analyzer::TechnicalIndicator::calculateRSI(continuousGains, continuousGains.size());
+    double rsiGains = analyzer::TechnicalIndicator::calculateRSI(continuousGains);
     EXPECT_GT(rsiGains, 70.0);
 
     std::vector<double> continuousLosses = {128, 126, 124, 122, 120, 118, 116, 114, 112, 110, 108, 106, 104, 102, 100};
-    double rsiLosses = analyzer::TechnicalIndicator::calculateRSI(continuousLosses, continuousLosses.size());
-    EXPECT_GT(rsiLosses, 30.0);
+    double rsiLosses = analyzer::TechnicalIndicator::calculateRSI(continuousLosses);
+    EXPECT_LT(rsiLosses, 30.0);
+
+    std::vector<double> exampleData = {120, 149, 114, 109, 131, 117, 143, 139, 110, 126, 140, 128, 141, 150, 127, 124, 101, 116, 123, 146, 125, 136, 122, 119, 102, 107, 106, 145, 130, 113, 100, 137, 103, 134, 147, 132, 138, 115, 148, 108};
+    double rsiExample = analyzer::TechnicalIndicator::calculateRSI(exampleData);
+    EXPECT_NEAR(rsiExample, 50.0, 40.0);
 }
