@@ -123,6 +123,77 @@ namespace transaction
         }
     };
 
+    class Trader
+    {
+    private:
+        double balance;
+        std::vector<std::shared_ptr<Order>> openOrders;
+        OrderBook& orderBook;
+
+        std::string generateOrderId()
+        {
+
+        }
+
+    public:
+        Trader(double initialBalance, OrderBook& book)
+            : balance(initialBalance), orderBook(book)
+        {
+
+        }
+
+        void placeLimitOrder(double price, unsigned int volume, OrderType type)
+        {
+            auto order = std::make_shared<LimitOrder>(generateOrderId(), type, price, volume);
+            openOrders.push_back(order);
+            orderBook.addOrder(order);
+        }
+
+        void placeMarketOrder(unsigned int volume, OrderType type)
+        {
+            auto order = std::make_shared<MarketOrder>(generateOrderId(), type, volume);
+            openOrders.push_back(order);
+            orderBook.addOrder(order);
+        }
+
+        void cancelOrder(const std::shared_ptr<Order>& order)
+        {
+
+        }
+
+        // Getters / Setters
+        double getBalance() const { return balance; }
+        void setBalance(double newBalance) { balance = newBalance; }
+    };
+
+    class Trade 
+    {
+    private:
+        std::string tradeId;
+        std::string buyOrderId;
+        std::string sellOrderId;
+        double tradePrice;
+        unsigned int tradeVolume;
+
+    public:
+        Trade(std::string id, std::string buyId, std::string sellId, double price, unsigned int volume)
+            : tradeId(id), buyOrderId(buyId), sellOrderId(sellId), tradePrice(price), tradeVolume(volume)
+        {
+
+        }
+
+        // Getters
+        std::string getTradeId() const { return tradeId; }
+        std::string getBuyOrderId() const { return buyOrderId; }
+        std::string getSellOrderId() const { return sellOrderId; }
+        double getTradePrice() const { return tradePrice; }
+        unsigned int getTradeVolume() const { return tradeVolume; }
+
+        // Setters
+        void setTradePrice(double newPrice) { tradePrice = newPrice; }
+        void setTradeVolume(unsigned int newVolume) { tradeVolume = newVolume; }
+    };
+
     class TransactionSimulation
     {
     private:
