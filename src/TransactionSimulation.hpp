@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <memory>
+#include <algorithm>
 
 namespace transaction
 {
@@ -61,7 +62,8 @@ namespace transaction
 
         void executeOrder() override
         {
-
+            std::cout << "Executing Limit Order: " << getOrderId() << std::endl;
+            setStatus(OrderStatus::COMPLETED);
         }
     };
 
@@ -78,7 +80,8 @@ namespace transaction
 
         void executeOrder() override 
         {
-
+            std::cout << "Executing Market Order: " << getOrderId() << std::endl;
+            setStatus(OrderStatus::COMPLETED);
         }
     };
 
@@ -87,10 +90,58 @@ namespace transaction
     private:
         std::list<std::shared_ptr<Order>> buyOrders;
         std::list<std::shared_ptr<Order>> sellOrders;
+        unsigned long long nextTradeId = 1;
+
+        std::string generateTradeId()
+        {
+            return "T" + std::to_string(nextTradeId++);
+        }
 
         void matchOrders()
         {
+            auto buyIter = buyOrders.begin();
+            while (buyIter != buyOrders.end())
+            {
+                bool orderMatched = false;
 
+                for (auto sellIter = sellOrders.begin(); sellIter != sellOrders.end();)
+                {
+                    if ((*buyIter)->getPrice() >= (*sellIter)->getPrice())
+                    {
+                        unsigned int tradeVolume = std::min((*buyIter)->getVolume(), (*sellIter)->getVolume());
+                        double tradePrice = (*sellIter)->getPrice();
+
+                        //Trade trade(generateTradeId(), (*buyIter)->getOrderId(), (*sellIter)->getOrderId(), tradePrice, tradeVolume);
+
+                        (*buyIter)->setVolume((*buyIter)->getVolume() - tradeVolume);
+                        (*sellIter)->setVolume((*sellIter)->getVolume() - tradeVolume);
+                        
+                        if ((*buyIter)->getVolume() == 0)
+                        {
+                            (*buyIter)->executeOrder();
+                            buyIter = buyOrders.erase(buyIter);
+                            orderMatched = true;
+                        }
+                        if ((*sellIter)->getVolume() == 0) 
+                        {
+                            (*sellIter)->executeOrder();
+                            sellIter = sellOrders.erase(sellIter);
+                            //orderMatched = true;
+                        } 
+                        else 
+                        {
+                            ++sellIter;
+                        }
+
+                        if (orderMatched)
+                            break;
+                    }
+                    else
+                        ++sellIter;
+                }
+                if (!orderMatched)
+                    ++buyIter;
+            }
         }
 
     public:
@@ -112,14 +163,40 @@ namespace transaction
             matchOrders();
         }
 
-        void removeOrder(const Order& order)
+        void removeOrder(const std::shared_ptr<Order>& order)
         {
-
+            auto removeOrderFromList = [&order](std::list<std::shared_ptr<Order>>& orders)
+            {
+                auto it = std::find_if(orders.begin(), orders.end(), 
+                               [&order](const std::shared_ptr<Order>& o) { return o->getOrderId() == order->getOrderId(); });
+                if (it != orders.end()) 
+                {
+                    orders.erase(it);
+                    return true;
+                }
+                return false;
+            };
+            if (!removeOrderFromList(buyOrders))
+                removeOrderFromList(sellOrders);
         }
 
         void displayBook() const
         {
+            std::cout << "------------------ Order Book ------------------" << std::endl;
+            std::cout << "Buy Orders:" << std::endl;
+            for (const auto& order : buyOrders) {
+                std::cout << "ID: " << order->getOrderId() << ", Type: " << (order->getType() == OrderType::BUY ? "BUY" : "SELL") 
+                        << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume() 
+                        << ", Status: " << (order->getStatus() == OrderStatus::PENDING ? "PENDING" : (order->getStatus() == OrderStatus::COMPLETED ? "COMPLETED" : "CANCELLED")) << std::endl;
+            }
 
+            std::cout << "Sell Orders:" << std::endl;
+            for (const auto& order : sellOrders) {
+                std::cout << "ID: " << order->getOrderId() << ", Type: " << (order->getType() == OrderType::BUY ? "BUY" : "SELL") 
+                        << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume() 
+                        << ", Status: " << (order->getStatus() == OrderStatus::PENDING ? "PENDING" : (order->getStatus() == OrderStatus::COMPLETED ? "COMPLETED" : "CANCELLED")) << std::endl;
+            }
+            std::cout << "------------------------------------------------" << std::endl;    
         }
     };
 
@@ -129,10 +206,11 @@ namespace transaction
         double balance;
         std::vector<std::shared_ptr<Order>> openOrders;
         OrderBook& orderBook;
+        unsigned long long nextOrderId = 1;
 
         std::string generateOrderId()
         {
-
+            return "_O" + std::to_string(nextOrderId++);
         }
 
     public:
@@ -158,7 +236,19 @@ namespace transaction
 
         void cancelOrder(const std::shared_ptr<Order>& order)
         {
+            auto it = std::find_if(openOrders.begin(), openOrders.end(),
+                                    [&order](const std::shared_ptr<Order>& o) { return o->getOrderId() == order->getOrderId(); });
 
+            if (it != openOrders.end())
+            {
+                orderBook.removeOrder(*it);
+                openOrders.erase(it);
+                std::cout << "Order " << order->getOrderId() << " cancelled." << std::endl;
+            }
+            else
+            {
+                std::cout << "Order " << order->getOrderId() << " not found." << std::endl;
+            }
         }
 
         // Getters / Setters
@@ -198,8 +288,28 @@ namespace transaction
     {
     private:
         OrderBook orderBook;
+        std::vector<Trader> traders;
     public:
+        TransactionSimulation()
+        {
 
+        }
+
+        void addTrader(double initialBalance)
+        {
+            traders.emplace_back(initialBalance, orderBook);
+        }
+
+        void runSimulation()
+        {
+            addTrader(10000);
+            addTrader(15000);
+            addTrader(20000);
+            
+            traders[0].placeLimitOrder(100.0, 20, OrderType::BUY);
+            traders[1].placeLimitOrder(90.0, 30, OrderType::SELL);
+            orderBook.displayBook();
+        }
     };
 }
 
