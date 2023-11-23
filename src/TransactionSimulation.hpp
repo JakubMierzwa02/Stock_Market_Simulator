@@ -10,6 +10,15 @@
 
 namespace transaction
 {
+    void clearScreen()
+    {
+        #ifdef _WIN32
+        system("cls");
+        #else
+        system("clear");
+        #endif
+    }
+
     enum class OrderType { BUY, SELL };
     enum class OrderStatus { PENDING, COMPLETED, CANCELLED };
 
@@ -85,6 +94,34 @@ namespace transaction
         }
     };
 
+    class Trade 
+    {
+    private:
+        std::string tradeId;
+        std::string buyOrderId;
+        std::string sellOrderId;
+        double tradePrice;
+        unsigned int tradeVolume;
+
+    public:
+        Trade(std::string id, std::string buyId, std::string sellId, double price, unsigned int volume)
+            : tradeId(id), buyOrderId(buyId), sellOrderId(sellId), tradePrice(price), tradeVolume(volume)
+        {
+
+        }
+
+        // Getters
+        std::string getTradeId() const { return tradeId; }
+        std::string getBuyOrderId() const { return buyOrderId; }
+        std::string getSellOrderId() const { return sellOrderId; }
+        double getTradePrice() const { return tradePrice; }
+        unsigned int getTradeVolume() const { return tradeVolume; }
+
+        // Setters
+        void setTradePrice(double newPrice) { tradePrice = newPrice; }
+        void setTradeVolume(unsigned int newVolume) { tradeVolume = newVolume; }
+    };
+
     class OrderBook
     {
     private:
@@ -111,7 +148,7 @@ namespace transaction
                         unsigned int tradeVolume = std::min((*buyIter)->getVolume(), (*sellIter)->getVolume());
                         double tradePrice = (*sellIter)->getPrice();
 
-                        //Trade trade(generateTradeId(), (*buyIter)->getOrderId(), (*sellIter)->getOrderId(), tradePrice, tradeVolume);
+                        Trade trade(generateTradeId(), (*buyIter)->getOrderId(), (*sellIter)->getOrderId(), tradePrice, tradeVolume);
 
                         (*buyIter)->setVolume((*buyIter)->getVolume() - tradeVolume);
                         (*sellIter)->setVolume((*sellIter)->getVolume() - tradeVolume);
@@ -182,6 +219,7 @@ namespace transaction
 
         void displayBook() const
         {
+            clearScreen();
             std::cout << "------------------ Order Book ------------------" << std::endl;
             std::cout << "Buy Orders:" << std::endl;
             for (const auto& order : buyOrders) {
@@ -256,32 +294,87 @@ namespace transaction
         void setBalance(double newBalance) { balance = newBalance; }
     };
 
-    class Trade 
+    class UserInterface
     {
     private:
-        std::string tradeId;
-        std::string buyOrderId;
-        std::string sellOrderId;
-        double tradePrice;
-        unsigned int tradeVolume;
+        Trader& trader;
+        OrderBook& orderBook;
+
+        void displayBalanceAndAssets()
+        {
+            std::cout << "Balance: " << trader.getBalance() << std::endl;
+        }
+
+        void placeLimitOrder()
+        {
+            double price;
+            unsigned int volume;
+            std::string type;
+
+            std::cout << "Enter price: ";
+            std::cin >> price;
+            std::cout << "Enter volume: ";
+            std::cin >> volume;
+            std::cout << "Buy (b) or Sell (s)?: ";
+            std::cin >> type;
+
+            OrderType orderType = (type == "b") ? OrderType::BUY : OrderType::SELL;
+            trader.placeLimitOrder(price, volume, orderType);
+        }
+
+        void placeMarketOrder() 
+        {
+            unsigned int volume;
+            std::string type;
+
+            std::cout << "Enter volume: ";
+            std::cin >> volume;
+            std::cout << "Buy (b) or Sell (s)?: ";
+            std::cin >> type;
+
+            OrderType orderType = (type == "b") ? OrderType::BUY : OrderType::SELL;
+            trader.placeMarketOrder(volume, orderType);
+    }
 
     public:
-        Trade(std::string id, std::string buyId, std::string sellId, double price, unsigned int volume)
-            : tradeId(id), buyOrderId(buyId), sellOrderId(sellId), tradePrice(price), tradeVolume(volume)
+        UserInterface(Trader& t, OrderBook& o) : trader(t), orderBook(o)
         {
 
         }
 
-        // Getters
-        std::string getTradeId() const { return tradeId; }
-        std::string getBuyOrderId() const { return buyOrderId; }
-        std::string getSellOrderId() const { return sellOrderId; }
-        double getTradePrice() const { return tradePrice; }
-        unsigned int getTradeVolume() const { return tradeVolume; }
+        void displayMenu()
+        {
+            std::string choice;
+            do 
+            {
+                std::cout << "\n*** Market simulator ***\n";
+                std::cout << "1. View balance\n";
+                std::cout << "2. Place limit order\n";
+                std::cout << "3. Place market order\n";
+                std::cout << "4. Display order book\n";
+                std::cout << "5. Exit\n";
+                std::cout << "Select option: ";
+                std::cin >> choice;
 
-        // Setters
-        void setTradePrice(double newPrice) { tradePrice = newPrice; }
-        void setTradeVolume(unsigned int newVolume) { tradeVolume = newVolume; }
+                if (choice == "1") 
+                {
+                    displayBalanceAndAssets();
+                } 
+                else if (choice == "2") 
+                {
+                    placeLimitOrder();
+                } 
+                else if (choice == "3") 
+                {
+                    placeMarketOrder();
+                }
+                else if (choice == "4")
+                {
+                    orderBook.displayBook();
+                }
+            } while (choice != "5");
+            clearScreen();
+        }
     };
 
     class TransactionSimulation
