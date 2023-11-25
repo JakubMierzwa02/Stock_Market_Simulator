@@ -11,32 +11,35 @@ namespace transaction
     // Function to match buy and sell orders in the order book
     void OrderBook::matchOrders()
     {
-        // Iterate through buy orders to find matches with sell orders
-        auto buyIter = buyOrders.begin();
-        while (buyIter != buyOrders.end())
+        while (!buyOrders.empty() && !sellOrders.empty())
         {
             bool matched = false;
+            auto buyIter = buyOrders.begin();
 
-            // Check if the buy order is a market order
-            if ((*buyIter)->getType() == OrderType::MARKET)
+            while (buyIter != buyOrders.end())
             {
-                auto sellIter = sellOrders.begin();
-                while (sellIter != sellOrders.end() && (*buyIter)->getVolume() > 0)
+                auto buyOrder = *buyIter;
+                if (buyOrder->getVolume() == 0)
                 {
-                    // Match with limit or market sell orders
-                    if ((*sellIter)->getType() == OrderType::LIMIT || (*sellIter)->getType() == OrderType::MARKET)
-                    {
-                        executeTrade(*buyIter, *sellIter);
-                        matched = true;
+                    buyOrders.erase(buyIter++);
+                    continue;
+                }
 
-                        if ((*sellIter)->getVolume() == 0)
-                        {
-                            sellIter = sellOrders.erase(sellIter);
-                        }
-                        else
-                        {
-                            ++sellIter;
-                        }
+                auto sellIter = sellOrders.begin();
+                while (sellIter != sellOrders.end())
+                {
+                    auto sellOrder = *sellIter;
+                    if (sellOrder->getVolume() == 0)
+                    {
+                        sellOrders.erase(sellIter++);
+                        continue;
+                    }
+
+                    if (buyOrder->getType() == OrderType::MARKET || buyOrder->getPrice() >= sellOrder->getPrice())
+                    {
+                        executeTrade(buyOrder, sellOrder);
+                        matched = true;
+                        break;
                     }
                     else
                     {
@@ -44,79 +47,24 @@ namespace transaction
                     }
                 }
 
-                if (matched)
+                if (!matched || buyOrder->getType() != OrderType::MARKET || buyOrder->getVolume() == 0)
                 {
-                    buyIter = buyOrders.erase(buyIter);
+                    break;
                 }
-                else
-                {
-                    ++buyIter;
-                }
-            }
-            else
-            {
                 ++buyIter;
-            }
-        }
-
-        // Iterate through sell orders to find matches with buy orders
-        auto sellIter = sellOrders.begin();
-        while (sellIter != sellOrders.end())
-        {
-            bool matched = false;
-
-            // Check if the sell order is a market order
-            if ((*sellIter)->getType() == OrderType::MARKET)
-            {
-                auto buyIter = buyOrders.begin();
-                while (buyIter != buyOrders.end() && (*sellIter)->getVolume() > 0)
-                {
-                    // Match with limit or market buy orders
-                    if ((*buyIter)->getType() == OrderType::LIMIT || (*buyIter)->getType() == OrderType::MARKET)
-                    {
-                        executeTrade(*sellIter, *buyIter);
-                        matched = true;
-
-                        if ((*buyIter)->getVolume() == 0)
-                        {
-                            buyIter = buyOrders.erase(buyIter);
-                        }
-                        else
-                        {
-                            ++buyIter;
-                        }
-                    }
-                    else
-                    {
-                        ++buyIter;
-                    }
-                }
-
-                if (matched)
-                {
-                    sellIter = sellOrders.erase(sellIter);
-                }
-                else
-                {
-                    ++sellIter;
-                }
-            }
-            else
-            {
-                ++sellIter;
             }
         }
     }
 
     // Function to execute a trade between two orders
-    void OrderBook::executeTrade(std::shared_ptr<Order> &order1, std::shared_ptr<Order> &order2)
+    void OrderBook::executeTrade(const std::shared_ptr<Order> &order1, const std::shared_ptr<Order> &order2)
     {
         unsigned int tradeVolume = std::min(order1->getVolume(), order2->getVolume());
         double tradePrice = order2->getPrice();
 
         // Find the traders involved in the trade
-        Trader* trader1 = findTraderById(order1->getTraderId());
-        Trader* trader2 = findTraderById(order2->getTraderId());
+        Trader *trader1 = findTraderById(order1->getTraderId());
+        Trader *trader2 = findTraderById(order2->getTraderId());
 
         // Execute the trade and update trader balances and assets
         if (trader1 && trader2)
@@ -137,6 +85,28 @@ namespace transaction
             Trade trade(generateTradeId(), order1->getOrderId(), order2->getOrderId(), tradePrice, tradeVolume);
             order1->setVolume(order1->getVolume() - tradeVolume);
             order2->setVolume(order2->getVolume() - tradeVolume);
+            // updateOrderVolume(order1, tradeVolume);
+            // updateOrderVolume(order2, tradeVolume);
+        }
+    }
+
+    void OrderBook::updateOrderVolume(const std::shared_ptr<Order> &order, unsigned int tradeVolume)
+    {
+        if (order->getIsBuyOrder())
+        {
+            order->setVolume(order->getVolume() - tradeVolume);
+            if (order->getVolume() > 0)
+            {
+                buyOrders.insert(order);
+            }
+        }
+        else
+        {
+            order->setVolume(order->getVolume() - tradeVolume);
+            if (order->getVolume() > 0)
+            {
+                sellOrders.insert(order);
+            }
         }
     }
 
@@ -147,7 +117,7 @@ namespace transaction
     }
 
     // Function to find a trader by their ID
-    Trader* OrderBook::findTraderById(const std::string &traderId)
+    Trader *OrderBook::findTraderById(const std::string &traderId)
     {
         auto it = traders.find(traderId);
         if (it != traders.end())
@@ -162,11 +132,11 @@ namespace transaction
     {
         if (order->getIsBuyOrder())
         {
-            buyOrders.push_back(order);
+            buyOrders.insert(order);
         }
         else
         {
-            sellOrders.push_back(order);
+            sellOrders.insert(order);
         }
         matchOrders();
     }
@@ -174,20 +144,14 @@ namespace transaction
     // Function to remove an order from the order book
     void OrderBook::removeOrder(const std::shared_ptr<Order> &order)
     {
-        auto removeOrderFromList = [&order](std::list<std::shared_ptr<Order>> &orders)
+        if (order->getIsBuyOrder())
         {
-            auto it = std::find_if(orders.begin(), orders.end(),
-                                   [&order](const std::shared_ptr<Order> &o)
-                                   { return o->getOrderId() == order->getOrderId(); });
-            if (it != orders.end())
-            {
-                orders.erase(it);
-                return true;
-            }
-            return false;
-        };
-        if (!removeOrderFromList(buyOrders))
-            removeOrderFromList(sellOrders);
+            buyOrders.erase(order);
+        }
+        else
+        {
+            sellOrders.erase(order);
+        }
     }
 
     // Function to display the current state of the order book

@@ -8,7 +8,7 @@
 
 #include <string>
 #include <map>
-#include <list>
+#include <set>
 #include <memory>
 #include <algorithm>
 
@@ -17,17 +17,34 @@ namespace transaction
     class Order;
     class Trader;
 
+    struct CompareBuyOrders
+    {
+        bool operator()(const std::shared_ptr<Order>& a, const std::shared_ptr<Order>& b) const
+        {
+            return a->getPrice() < b->getPrice();
+        }
+    };
+
+    struct CompareSellOrders
+    {
+        bool operator()(const std::shared_ptr<Order>& a, const std::shared_ptr<Order>& b) const
+        {
+            return a->getPrice() < b->getPrice();
+        }
+    };
+
     class OrderBook
     {
     private:
         std::map<std::string, std::shared_ptr<Trader>> traders;
-        std::list<std::shared_ptr<Order>> buyOrders;
-        std::list<std::shared_ptr<Order>> sellOrders;
+        std::multiset<std::shared_ptr<Order>, CompareBuyOrders> buyOrders;
+        std::multiset<std::shared_ptr<Order>, CompareSellOrders> sellOrders;
         unsigned long long nextTradeId = 1;
 
         std::string generateTradeId();
         void matchOrders();
-        void executeTrade(std::shared_ptr<Order>& order1, std::shared_ptr<Order>& order2);
+        void executeTrade(const std::shared_ptr<Order>& order1, const std::shared_ptr<Order>& order2);
+        void updateOrderVolume(const std::shared_ptr<Order>& order, unsigned int tradeVolume);
 
     public:
         OrderBook() { }
