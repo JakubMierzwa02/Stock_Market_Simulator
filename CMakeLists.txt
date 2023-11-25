@@ -13,13 +13,18 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(Sources
     src/main.cpp
+    src/Trader.cpp
+    src/OrderBook.cpp
+    src/UserInterface.cpp
 )
 
-#set(Headers
-    
-#)
+set(Headers
+    src/Trader.hpp
+    src/OrderBook.hpp
+    src/UserInterface.hpp
+)
 
-add_executable(This ${Sources})
+add_executable(This ${Sources} ${Headers})
 
 target_link_libraries(This ${Boost_LIBRARIES})
 
