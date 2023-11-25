@@ -40,6 +40,7 @@ namespace transaction
         std::multiset<std::shared_ptr<Order>, CompareBuyOrders> buyOrders;
         std::multiset<std::shared_ptr<Order>, CompareSellOrders> sellOrders;
         unsigned long long nextTradeId = 1;
+        double lastTradePrice = 0.0;
 
         std::string generateTradeId();
         void matchOrders();
@@ -54,6 +55,8 @@ namespace transaction
         void addOrder(std::shared_ptr<Order> order);
         void removeOrder(const std::shared_ptr<Order>& order);
         void displayBook() const;
+        double getLastTradePrice() const;
+        void setLastTradePrice(double price);
     };
 }
 

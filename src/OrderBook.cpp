@@ -60,7 +60,13 @@ namespace transaction
     void OrderBook::executeTrade(const std::shared_ptr<Order> &order1, const std::shared_ptr<Order> &order2)
     {
         unsigned int tradeVolume = std::min(order1->getVolume(), order2->getVolume());
-        double tradePrice = order2->getPrice();
+        double tradePrice;
+        if (order1->getPrice() != 0)
+            tradePrice = order1->getPrice();
+        else
+            tradePrice = order2->getPrice();
+
+        setLastTradePrice(tradePrice);
 
         // Find the traders involved in the trade
         Trader *trader1 = findTraderById(order1->getTraderId());
@@ -174,6 +180,8 @@ namespace transaction
         // Reset text color
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
+        std::cout << "Market price: " << lastTradePrice << std::endl;
+
         std::cout << "Sell Orders:" << std::endl;
         // Set text color for sell orders
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
@@ -187,5 +195,15 @@ namespace transaction
         // Reset text color
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
         std::cout << "------------------------------------------------" << std::endl;
+    }
+
+    double OrderBook::getLastTradePrice() const
+    {
+        return lastTradePrice;
+    }
+
+    void OrderBook::setLastTradePrice(double price)
+    {
+        lastTradePrice = price;
     }
 }

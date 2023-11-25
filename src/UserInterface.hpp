@@ -33,7 +33,7 @@ namespace transaction
                 system("clear");
             #endif
         }
-
+        
         void displayMenu();
     };
 }
