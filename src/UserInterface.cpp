@@ -2,12 +2,14 @@
 
 namespace transaction
 {
+    // Function to display the current balance and assets of the trader
     void UserInterface::displayBalanceAndAssets()
     {
         std::cout << "Balance: " << trader->getBalance() << std::endl;
         std::cout << "Assets: " << trader->getAssets() << std::endl;
     }
 
+    // Function to handle placing a limit order
     void UserInterface::placeLimitOrder()
     {
         double price;
@@ -22,9 +24,12 @@ namespace transaction
         std::cin >> type;
 
         bool isBuy = (type == 'b');
+
+        // Place the limit order through trader object
         trader->placeLimitOrder(price, volume, isBuy);
     }
 
+    // Function to handle placing a market order
     void UserInterface::placeMarketOrder()
     {
         unsigned int volume;
@@ -36,9 +41,12 @@ namespace transaction
         std::cin >> type;
 
         bool isBuy = (type == 'b');
+
+        // Place the market order through trader object
         trader->placeMarketOrder(volume, isBuy);
     }
 
+    // Function to display the main menu of the user interface
     void UserInterface::displayMenu()
     {
         std::string choice;
@@ -61,7 +69,7 @@ namespace transaction
             {
                 placeMarketOrder();
             }
-            Sleep(1500);
+            Sleep(1000);
         } while (choice != "3");
         clearScreen();
     }
