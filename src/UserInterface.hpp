@@ -4,6 +4,9 @@
 #include "Trader.hpp"
 #include "OrderBook.hpp"
 
+#include <windows.h>
+#include <memory>
+
 namespace transaction
 {
     class Trader;
@@ -12,7 +15,7 @@ namespace transaction
     class UserInterface
     {
     private:
-        Trader& trader;
+        std::shared_ptr<Trader> trader;
         OrderBook& orderBook;
 
         void displayBalanceAndAssets();
@@ -20,7 +23,7 @@ namespace transaction
         void placeMarketOrder();
 
     public:
-        UserInterface(Trader& t, OrderBook& o) : trader(t), orderBook(o) { }
+        UserInterface(std::shared_ptr<Trader> t, OrderBook& o) : trader(t), orderBook(o) { }
 
         static void clearScreen()
         {

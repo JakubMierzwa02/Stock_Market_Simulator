@@ -4,8 +4,8 @@ namespace transaction
 {
     void UserInterface::displayBalanceAndAssets()
     {
-        std::cout << "Balance: " << trader.getBalance() << std::endl;
-        std::cout << "Assets: " << trader.getAssets() << std::endl;
+        std::cout << "Balance: " << trader->getBalance() << std::endl;
+        std::cout << "Assets: " << trader->getAssets() << std::endl;
     }
 
     void UserInterface::placeLimitOrder()
@@ -22,7 +22,7 @@ namespace transaction
         std::cin >> type;
 
         bool isBuy = (type == 'b');
-        trader.placeLimitOrder(price, volume, isBuy);
+        trader->placeLimitOrder(price, volume, isBuy);
     }
 
     void UserInterface::placeMarketOrder()
@@ -36,7 +36,7 @@ namespace transaction
         std::cin >> type;
 
         bool isBuy = (type == 'b');
-        trader.placeMarketOrder(volume, isBuy);
+        trader->placeMarketOrder(volume, isBuy);
     }
 
     void UserInterface::displayMenu()
@@ -61,6 +61,7 @@ namespace transaction
             {
                 placeMarketOrder();
             }
+            Sleep(1500);
         } while (choice != "3");
         clearScreen();
     }

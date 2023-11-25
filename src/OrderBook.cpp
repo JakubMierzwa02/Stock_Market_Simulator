@@ -105,8 +105,8 @@ namespace transaction
         unsigned int tradeVolume = std::min(order1->getVolume(), order2->getVolume());
         double tradePrice = order2->getPrice();
 
-        Trader *trader1 = findTraderById(order1->getTraderId());
-        Trader *trader2 = findTraderById(order2->getTraderId());
+        Trader* trader1 = findTraderById(order1->getTraderId());
+        Trader* trader2 = findTraderById(order2->getTraderId());
 
         if (trader1 && trader2)
         {

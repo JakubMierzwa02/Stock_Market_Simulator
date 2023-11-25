@@ -43,8 +43,21 @@ namespace transaction
 
     void Trader::placeLimitOrder(double price, unsigned int volume, bool isBuy)
     {
+        if (!isBuy && assets < volume)
+        {
+            std::cout << "Error: Not enough assets to sell." << std::endl;
+            return;
+        }
+
         double amount = price * volume;
-        reserveFunds(amount);
+        if (isBuy)
+        {
+            reserveFunds(amount);
+        }
+        else
+        {
+            removeAssets(volume);
+        }
 
         auto order = std::make_shared<LimitOrder>(generateOrderId(), traderId, isBuy, price, volume);
         openOrders.push_back(order);
@@ -53,6 +66,17 @@ namespace transaction
 
     void Trader::placeMarketOrder(unsigned int volume, bool isBuy)
     {
+        if (!isBuy && assets < volume)
+        {
+            std::cout << "Error: Not enough assets to sell." << std::endl;
+            return;
+        }
+        
+        if (!isBuy)
+        {
+            removeAssets(volume);
+        }
+
         auto order = std::make_shared<MarketOrder>(generateOrderId(), traderId, isBuy, volume);
         openOrders.push_back(order);
         orderBook->addOrder(order);
