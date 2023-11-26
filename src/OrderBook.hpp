@@ -21,7 +21,7 @@ namespace transaction
     {
         bool operator()(const std::shared_ptr<Order>& a, const std::shared_ptr<Order>& b) const
         {
-            return a->getPrice() < b->getPrice();
+            return a->getPrice() > b->getPrice();
         }
     };
 

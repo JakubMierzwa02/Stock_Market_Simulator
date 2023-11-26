@@ -35,7 +35,17 @@ namespace transaction
                         continue;
                     }
 
-                    if (buyOrder->getType() == OrderType::MARKET || buyOrder->getPrice() >= sellOrder->getPrice())
+                    if (buyOrder->getType() == OrderType::MARKET)
+                    {
+                        buyOrder->setPrice(sellOrder->getPrice());
+                    }
+
+                    if (sellOrder->getType() == OrderType::MARKET)
+                    {
+                        sellOrder->setPrice(buyOrder->getPrice());
+                    }
+
+                    if (buyOrder->getPrice() >= sellOrder->getPrice())
                     {
                         executeTrade(buyOrder, sellOrder);
                         matched = true;
@@ -46,13 +56,10 @@ namespace transaction
                         ++sellIter;
                     }
                 }
-
-                if (!matched || buyOrder->getType() != OrderType::MARKET || buyOrder->getVolume() == 0)
-                {
-                    break;
-                }
                 ++buyIter;
             }
+            if (!matched)
+                break;
         }
     }
 
@@ -60,11 +67,14 @@ namespace transaction
     void OrderBook::executeTrade(const std::shared_ptr<Order> &order1, const std::shared_ptr<Order> &order2)
     {
         unsigned int tradeVolume = std::min(order1->getVolume(), order2->getVolume());
-        double tradePrice;
-        if (order1->getPrice() != 0)
+        double tradePrice = 0.0;
+
+        if (order1->getType() == OrderType::MARKET)
             tradePrice = order1->getPrice();
-        else
+        else if (order2->getType() == OrderType::MARKET)
             tradePrice = order2->getPrice();
+        else
+            tradePrice = order1->getPrice();
 
         setLastTradePrice(tradePrice);
 
@@ -91,28 +101,6 @@ namespace transaction
             Trade trade(generateTradeId(), order1->getOrderId(), order2->getOrderId(), tradePrice, tradeVolume);
             order1->setVolume(order1->getVolume() - tradeVolume);
             order2->setVolume(order2->getVolume() - tradeVolume);
-            // updateOrderVolume(order1, tradeVolume);
-            // updateOrderVolume(order2, tradeVolume);
-        }
-    }
-
-    void OrderBook::updateOrderVolume(const std::shared_ptr<Order> &order, unsigned int tradeVolume)
-    {
-        if (order->getIsBuyOrder())
-        {
-            order->setVolume(order->getVolume() - tradeVolume);
-            if (order->getVolume() > 0)
-            {
-                buyOrders.insert(order);
-            }
-        }
-        else
-        {
-            order->setVolume(order->getVolume() - tradeVolume);
-            if (order->getVolume() > 0)
-            {
-                sellOrders.insert(order);
-            }
         }
     }
 
@@ -165,14 +153,15 @@ namespace transaction
     {
         transaction::UserInterface::clearScreen();
         std::cout << "------------------ Order Book ------------------" << std::endl;
-        std::cout << "Buy Orders:" << std::endl;
-
-        // Set text color for buy orders
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
 
-        for (const auto &order : buyOrders)
+        std::cout << "Sell Orders:" << std::endl;
+        // Set text color for sell orders
+        SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+
+        for (auto orderIter = sellOrders.rbegin(); orderIter != sellOrders.rend(); ++orderIter)
         {
+            auto order = *orderIter;
             std::cout << "ID: " << order->getOrderId() << ", Type: " << (order->getIsBuyOrder() ? "BUY" : "SELL")
                       << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume()
                       << ", Status: " << (order->getStatus() == OrderStatus::PENDING ? "PENDING" : (order->getStatus() == OrderStatus::COMPLETED ? "COMPLETED" : "CANCELLED")) << std::endl;
@@ -182,11 +171,12 @@ namespace transaction
 
         std::cout << "Market price: " << lastTradePrice << std::endl;
 
-        std::cout << "Sell Orders:" << std::endl;
-        // Set text color for sell orders
-        SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
+        std::cout << "Buy Orders:" << std::endl;
 
-        for (const auto &order : sellOrders)
+        // Set text color for buy orders
+        SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN);
+
+        for (const auto &order : buyOrders)
         {
             std::cout << "ID: " << order->getOrderId() << ", Type: " << (order->getIsBuyOrder() ? "BUY" : "SELL")
                       << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume()

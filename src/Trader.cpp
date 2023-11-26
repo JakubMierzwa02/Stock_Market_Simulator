@@ -87,7 +87,7 @@ namespace transaction
         }
 
         // Create a new market order and add it to the order book
-        auto order = std::make_shared<MarketOrder>(generateOrderId(), traderId, isBuy, volume);
+        auto order = std::make_shared<MarketOrder>(generateOrderId(), traderId, isBuy, orderBook->getLastTradePrice(), volume);
         openOrders.push_back(order);
         orderBook->addOrder(order);
     }
