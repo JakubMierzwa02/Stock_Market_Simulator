@@ -5,7 +5,7 @@ namespace transaction
     // Function to display the current balance and assets of the trader
     void UserInterface::displayBalanceAndAssets()
     {
-        std::cout << "Balance: " << trader->getBalance() << std::endl;
+        std::cout << "Balance: " << trader->getCashBalance() << std::endl;
         std::cout << "Assets: " << trader->getAssets() << std::endl;
     }
 

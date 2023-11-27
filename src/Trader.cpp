@@ -11,9 +11,9 @@ namespace transaction
     // Function to reserve funds for an order, checks if balance is sufficient
     void Trader::reserveFunds(double amount)
     {
-        if (balance >= amount)
+        if (portfolio.getCashBalance() >= amount)
         {
-            balance -= amount;
+            portfolio.setCashBalance(portfolio.getCashBalance() - amount);
         }
         else
         {
@@ -24,32 +24,26 @@ namespace transaction
     // Function to add funds to the trader's balance
     void Trader::addFunds(double amount)
     {
-        balance += amount;
+        portfolio.addCash(amount);
     }
 
     // Function to add assets to the trader's account
-    void Trader::addAssets(unsigned int amount)
+    void Trader::addAssets(const std::string& assetId, unsigned int quantity)
     {
-        assets += amount;
+        portfolio.addAsset(portfolio::Asset(assetId, quantity));
     }
 
     // Function to remove assets from the trader's account
-    void Trader::removeAssets(unsigned int amount)
+    void Trader::removeAssets(const std::string& assetId, unsigned int quantity)
     {
-        if (assets >= amount)
-        {
-            assets -= amount;
-        }
-        else
-        {
-            std::cout << "Insufficient assets." << std::endl;
-        }
+        portfolio.updateAssetQuantity(assetId, -static_cast<int>(quantity));
     }
 
     // Function to place a limit order
     void Trader::placeLimitOrder(double price, unsigned int volume, bool isBuy)
     {
-        if (!isBuy && assets < volume)
+        // EDIT //
+        if (!isBuy && portfolio.getAssetQuantity("BTC") < volume)
         {
             std::cout << "Error: Not enough assets to sell." << std::endl;
             return;
@@ -62,7 +56,7 @@ namespace transaction
         }
         else
         {
-            removeAssets(volume);
+            removeAssets("BTC", volume);
         }
 
         // Create a new limit order and add it to the order book
@@ -75,7 +69,7 @@ namespace transaction
     void Trader::placeMarketOrder(unsigned int volume, bool isBuy)
     {
         // Check if trader has enough assets to sell
-        if (!isBuy && assets < volume)
+        if (!isBuy && portfolio.getAssetQuantity("BTC") < volume)
         {
             std::cout << "Error: Not enough assets to sell." << std::endl;
             return;
@@ -83,7 +77,7 @@ namespace transaction
         
         if (!isBuy)
         {
-            removeAssets(volume);
+            removeAssets("BTC", volume);
         }
 
         // Create a new market order and add it to the order book
@@ -118,23 +112,18 @@ namespace transaction
         return traderId; 
     }
 
-    double Trader::getBalance() const 
+    double Trader::getCashBalance() const 
     { 
-        return balance; 
+        return portfolio.getCashBalance(); 
     }
 
-    void Trader::setBalance(double newBalance) 
+    void Trader::setCashBalance(double newBalance) 
     {
-        balance = newBalance; 
+        portfolio.setCashBalance(newBalance); 
     }
 
     unsigned int Trader::getAssets() const
     {
-        return assets;
-    }
-
-    void Trader::setAssets(unsigned int newAmount)
-    {
-        assets = newAmount;
+        return portfolio.getAssetQuantity("BTC");
     }
 }

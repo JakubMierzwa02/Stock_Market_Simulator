@@ -88,12 +88,12 @@ namespace transaction
             double tradeAmount = tradePrice * tradeVolume;
             if (order1->getIsBuyOrder())
             {
-                trader1->addAssets(tradeVolume);
+                trader1->addAssets("BTC", tradeVolume);
                 trader2->addFunds(tradeAmount);
             }
             else
             {
-                trader2->addAssets(tradeVolume);
+                trader2->addAssets("BTC", tradeVolume);
                 trader1->addFunds(tradeAmount);
             }
 
