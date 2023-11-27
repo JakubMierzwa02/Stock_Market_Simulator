@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "../src/OrderBook.hpp"
 
-class OrderBookTest : public ::testing::Test
+class TransactionSimulationTest : public ::testing::Test
 {
 protected:
     transaction::OrderBook orderBook;
@@ -18,28 +18,22 @@ protected:
     }
 };
 
-TEST_F(OrderBookTest, GenerateTradeId)
+TEST_F(TransactionSimulationTest, GenerateTradeId)
 {
     std::string id1 = orderBook.generateTradeId();
     std::string id2 = orderBook.generateTradeId();
     EXPECT_NE(id1, id2);
 }
 
-TEST_F(OrderBookTest, MatchOrders)
+TEST_F(TransactionSimulationTest, MatchOrders)
 {
     orderBook.addOrder(buyOrder);
     orderBook.addOrder(sellOrder);
-    if (buyOrder->getStatus() == OrderStatus::PENDING)
-    {
-        std::cout<<"COMPLETED!!!!!!!"<<std::endl;
-    }
-    else
-        std::cout<<"PENDING!!!!!"<<std::endl;
     EXPECT_EQ(buyOrder->getStatus(), OrderStatus::COMPLETED);
     EXPECT_EQ(sellOrder->getStatus(), OrderStatus::COMPLETED);
 }
 
-TEST_F(OrderBookTest, ExecuteTrade)
+TEST_F(TransactionSimulationTest, ExecuteTrade)
 {
     //orderBook.executeTrade(buyOrder, sellOrder);
     orderBook.addOrder(buyOrder);
@@ -48,9 +42,42 @@ TEST_F(OrderBookTest, ExecuteTrade)
     EXPECT_EQ(sellOrder->getVolume(), 0);
 }
 
-TEST_F(OrderBookTest, RegisterAndFindTrader)
+TEST_F(TransactionSimulationTest, RegisterAndFindTrader)
 {
     auto foundTrader = orderBook.findTraderById("trader_id");
     EXPECT_NE(foundTrader, nullptr);
     EXPECT_EQ(foundTrader->getTraderId(), trader->getTraderId());
+}
+
+TEST_F(TransactionSimulationTest, GenerateOrderId)
+{
+    std::string id1 = trader->generateOrderId();
+    std::string id2 = trader->generateOrderId();
+    EXPECT_NE(id1, id2);
+}
+
+TEST_F(TransactionSimulationTest, ReserveFunds)
+{
+    double initialBalance = trader->getBalance();
+    double reserveAmount = 500.0;
+    trader->reserveFunds(reserveAmount);
+    EXPECT_EQ(trader->getBalance(), initialBalance - reserveAmount);
+}
+
+TEST_F(TransactionSimulationTest, AddFunds)
+{
+    double initialBalance = trader->getBalance();
+    double addAmount = 200.0;
+    trader->addFunds(addAmount);
+    EXPECT_EQ(trader->getBalance(), initialBalance + addAmount);
+}
+
+TEST_F(TransactionSimulationTest, AddAndRemoveAssets)
+{
+    unsigned int initialAssets = trader->getAssets();
+    unsigned int addAmount = 10;
+    trader->addAssets(addAmount);
+    EXPECT_EQ(trader->getAssets(), initialAssets + addAmount);
+    trader->removeAssets(5);
+    EXPECT_EQ(trader->getAssets(), initialAssets + addAmount - 5);
 }

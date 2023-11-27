@@ -25,12 +25,11 @@ namespace transaction
         OrderBook* orderBook;
         unsigned long long nextOrderId = 1;
 
-        std::string generateOrderId();
-
     public:
         Trader(const std::string& id, double initialBalance, OrderBook* book)
             : traderId(id), balance(initialBalance), orderBook(book) { }
 
+        std::string generateOrderId();
         void reserveFunds(double amount);
         void addFunds(double amount);
         void addAssets(unsigned int amount);

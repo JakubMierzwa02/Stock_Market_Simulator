@@ -5,7 +5,7 @@ namespace transaction
     // Function to generate a unique order ID for each new order
     std::string Trader::generateOrderId()
     {
-        return "_O" + std::to_string(nextOrderId++);
+        return traderId + "_O" + std::to_string(nextOrderId++);
     }
 
     // Function to reserve funds for an order, checks if balance is sufficient
