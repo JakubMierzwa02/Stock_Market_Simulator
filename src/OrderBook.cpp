@@ -101,6 +101,8 @@ namespace transaction
             Trade trade(generateTradeId(), order1->getOrderId(), order2->getOrderId(), tradePrice, tradeVolume);
             order1->setVolume(order1->getVolume() - tradeVolume);
             order2->setVolume(order2->getVolume() - tradeVolume);
+            order1->executeOrder();
+            order2->executeOrder();
         }
     }
 

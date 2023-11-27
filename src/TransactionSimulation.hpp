@@ -10,19 +10,19 @@ namespace transaction
     {
     private:
         OrderBook orderBook;
-        std::vector<Trader> traders;
+        std::map<std::string, std::shared_ptr<Trader>> traders;
     public:
         TransactionSimulation()
         {
 
         }
 
-        void addTrader(double initialBalance)
+        std::map<std::string, std::shared_ptr<Trader>> createTraders(int numberOfTraders) 
         {
-            traders.emplace_back(initialBalance, &orderBook);
+            
         }
 
-        void runSimulation()
+        void simulateMarket(int numberOfTraders, int duration)
         {
             
         }

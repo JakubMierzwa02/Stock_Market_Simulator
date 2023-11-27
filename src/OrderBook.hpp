@@ -42,14 +42,13 @@ namespace transaction
         unsigned long long nextTradeId = 1;
         double lastTradePrice = 0.0;
 
-        std::string generateTradeId();
         void matchOrders();
         void executeTrade(const std::shared_ptr<Order>& order1, const std::shared_ptr<Order>& order2);
-        void updateOrderVolume(const std::shared_ptr<Order>& order, unsigned int tradeVolume);
 
     public:
         OrderBook() { }
 
+        std::string generateTradeId();
         void registerTrader(const std::shared_ptr<Trader>& trader);
         Trader* findTraderById(const std::string& traderId);
         void addOrder(std::shared_ptr<Order> order);
