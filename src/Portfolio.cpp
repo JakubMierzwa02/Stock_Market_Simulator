@@ -17,6 +17,24 @@ namespace portfolio
         quantity = newQuantity;
     }
 
+    void Portfolio::displayContents() const
+    {
+        std::cout << "Portfolio contents:\n";
+        std::cout << "Cash balance: $" << cash << '\n';
+
+        if (assets.empty())
+        {
+            std::cout << "No assets.\n";
+        }
+        else
+        {
+            for (const auto& [assetId, asset] : assets)
+            {
+                std::cout << "Asset ID: " << assetId << ", Quantity: " << asset.getQuantity() << '\n';
+            }
+        }
+    }
+
     void Portfolio::addAsset(const Asset &asset)
     {
         auto it = assets.find(asset.getAssetId());

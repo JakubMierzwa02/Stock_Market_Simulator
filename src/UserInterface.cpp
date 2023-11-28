@@ -53,7 +53,7 @@ namespace transaction
         do
         {
             orderBook.displayBook();
-            displayBalanceAndAssets();
+            trader->displayPortfolio();
             std::cout << "\n*** Market simulator ***\n";
             std::cout << "1. Place limit order\n";
             std::cout << "2. Place market order\n";
@@ -69,7 +69,7 @@ namespace transaction
             {
                 placeMarketOrder();
             }
-            Sleep(1000);
+            Sleep(500);
         } while (choice != "3");
         clearScreen();
     }

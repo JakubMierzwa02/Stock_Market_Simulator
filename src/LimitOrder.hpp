@@ -15,12 +15,6 @@ namespace transaction
         {
 
         }
-
-        void executeOrder() override
-        {
-            std::cout << "Executing Limit Order: " << getOrderId() << std::endl;
-            setStatus(OrderStatus::COMPLETED);
-        }
     };
 }
 

@@ -89,20 +89,22 @@ namespace transaction
             if (order1->getIsBuyOrder())
             {
                 trader1->addAssets("BTC", tradeVolume);
+                trader1->setCashBalance(trader1->getCashBalance() - tradeAmount);
                 trader2->addFunds(tradeAmount);
+                trader2->removeAssets("BTC", tradeVolume);
             }
             else
             {
                 trader2->addAssets("BTC", tradeVolume);
+                trader2->setCashBalance(trader1->getCashBalance() - tradeAmount);
                 trader1->addFunds(tradeAmount);
+                trader1->removeAssets("BTC", tradeVolume);
             }
 
             // Record the trade and update order volumes
             Trade trade(generateTradeId(), order1->getOrderId(), order2->getOrderId(), tradePrice, tradeVolume);
             order1->setVolume(order1->getVolume() - tradeVolume);
             order2->setVolume(order2->getVolume() - tradeVolume);
-            order1->executeOrder();
-            order2->executeOrder();
         }
     }
 
@@ -165,8 +167,7 @@ namespace transaction
         {
             auto order = *orderIter;
             std::cout << "ID: " << order->getOrderId() << ", Type: " << (order->getIsBuyOrder() ? "BUY" : "SELL")
-                      << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume()
-                      << ", Status: " << (order->getStatus() == OrderStatus::PENDING ? "PENDING" : (order->getStatus() == OrderStatus::COMPLETED ? "COMPLETED" : "CANCELLED")) << std::endl;
+                      << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume() << std::endl;
         }
         // Reset text color
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -181,8 +182,7 @@ namespace transaction
         for (const auto &order : buyOrders)
         {
             std::cout << "ID: " << order->getOrderId() << ", Type: " << (order->getIsBuyOrder() ? "BUY" : "SELL")
-                      << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume()
-                      << ", Status: " << (order->getStatus() == OrderStatus::PENDING ? "PENDING" : (order->getStatus() == OrderStatus::COMPLETED ? "COMPLETED" : "CANCELLED")) << std::endl;
+                      << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume() << std::endl;
         }
         // Reset text color
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);

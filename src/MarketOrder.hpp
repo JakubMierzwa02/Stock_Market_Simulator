@@ -15,12 +15,6 @@ namespace transaction
             {
 
             }
-
-        void executeOrder() override 
-        {
-            std::cout << "Executing Market Order: " << getOrderId() << std::endl;
-            setStatus(OrderStatus::COMPLETED);
-        }
     };
 }
 

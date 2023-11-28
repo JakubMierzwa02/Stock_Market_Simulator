@@ -42,6 +42,7 @@ namespace transaction
         void placeLimitOrder(double price, unsigned int volume, bool isBuy);
         void placeMarketOrder(unsigned int volume, bool isBuy);
         void cancelOrder(const std::shared_ptr<Order>& order);
+        void displayPortfolio() const;
 
         // Getters / Setters
         std::string getTraderId() const;

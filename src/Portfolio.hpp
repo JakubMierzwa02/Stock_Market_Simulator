@@ -1,6 +1,7 @@
 #ifndef PORTFOLIO_HPP
 #define PORTFOLIO_HPP
 
+#include <iostream>
 #include <map>
 #include <string>
 #include <stdexcept>
@@ -31,6 +32,7 @@ namespace portfolio
     public:
         Portfolio() : cash(0.0) { }
 
+        void displayContents() const;
         void addAsset(const Asset& asset);
         void removeAsset(const std::string& assetId);
         unsigned int getAssetQuantity(const std::string& assetId) const;

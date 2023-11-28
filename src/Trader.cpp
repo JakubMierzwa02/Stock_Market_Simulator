@@ -42,22 +42,21 @@ namespace transaction
     // Function to place a limit order
     void Trader::placeLimitOrder(double price, unsigned int volume, bool isBuy)
     {
-        // EDIT //
         if (!isBuy && portfolio.getAssetQuantity("BTC") < volume)
         {
             std::cout << "Error: Not enough assets to sell." << std::endl;
             return;
         }
 
-        double amount = price * volume;
-        if (isBuy)
-        {
-            reserveFunds(amount);
-        }
-        else
-        {
-            removeAssets("BTC", volume);
-        }
+        // double amount = price * volume;
+        // if (isBuy)
+        // {
+        //     reserveFunds(amount);
+        // }
+        // else
+        // {
+        //     removeAssets("BTC", volume);
+        // }
 
         // Create a new limit order and add it to the order book
         auto order = std::make_shared<LimitOrder>(generateOrderId(), traderId, isBuy, price, volume);
@@ -75,10 +74,10 @@ namespace transaction
             return;
         }
         
-        if (!isBuy)
-        {
-            removeAssets("BTC", volume);
-        }
+        // if (!isBuy)
+        // {
+        //     removeAssets("BTC", volume);
+        // }
 
         // Create a new market order and add it to the order book
         auto order = std::make_shared<MarketOrder>(generateOrderId(), traderId, isBuy, orderBook->getLastTradePrice(), volume);
@@ -104,6 +103,12 @@ namespace transaction
         {
             std::cout << "Order " << order->getOrderId() << " not found." << std::endl;
         }
+    }
+
+    void Trader::displayPortfolio() const
+    {
+        std::cout << "Trader ID: " << traderId << '\n';
+        portfolio.displayContents();
     }
 
     // Getters / Setters
