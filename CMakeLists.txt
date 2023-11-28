@@ -13,17 +13,24 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(Sources
     src/main.cpp
+    src/CSVImporter.cpp
+    src/DataImporter.cpp
+    src/DataValidator.cpp
 )
 
-#set(Headers
-    
-#)
+set(Headers
+    src/CSVImporter.hpp
+    src/DataImporter.hpp
+    src/IDataImporter.hpp
+    src/StockData.hpp
+    src/DataValidator.hpp
+)
 
 add_executable(This ${Sources})
 
 target_link_libraries(This ${Boost_LIBRARIES})
 
-add_library(${This} STATIC ${Sources})
+add_library(${This} STATIC ${Sources} ${Headers})
 
 enable_testing()
 add_subdirectory(test)
