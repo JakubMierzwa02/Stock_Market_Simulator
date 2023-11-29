@@ -13,6 +13,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(Sources
     src/main.cpp
+    src/DataAnalyzer.cpp
+    src/StatisticalProcessor.cpp
 )
 
 #set(Headers
