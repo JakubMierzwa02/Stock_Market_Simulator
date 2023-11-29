@@ -5,6 +5,7 @@ int main()
 {
     importer::DataImporter importer;
     importer.importData("../data.csv", "CSV");
+    importer.validateData();
 
     const auto& data = importer.getData();
     for (const auto& row : data) 

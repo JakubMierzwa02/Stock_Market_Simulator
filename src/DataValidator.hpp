@@ -9,7 +9,7 @@ namespace importer
 {
     class DataValidator
     {
-    private:
+    public:
         bool validateDate(const std::string& date);
         bool validatePrice(double price);
         bool validateVolume(long volume);
