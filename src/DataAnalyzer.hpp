@@ -27,7 +27,7 @@ namespace analyzer
     private:
         std::vector<MarketData> marketData;
         StatisticalProcessor processor;
-        TechnicalIndicator indicator;
+        //TechnicalIndicator indicator;
 
     public:
         DataAnalyzer(const std::vector<MarketData>& data) : marketData(data) { }

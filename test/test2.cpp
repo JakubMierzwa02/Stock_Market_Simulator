@@ -60,3 +60,28 @@ TEST_F(DataAnalyzerTest, CalculateRSI)
     double rsiExample = analyzer::TechnicalIndicator::calculateRSI(exampleData, 14);
     EXPECT_NEAR(rsiExample, 50.0, 40.0);
 }
+
+TEST_F(DataAnalyzerTest, CalculateStochastic)
+{
+    std::vector<double> prices = { 100, 105, 110, 115, 120, 125, 130, 135, 140, 145 };
+
+    int periodK = 5;
+    int periodD = 3;
+
+    auto stochastic = analyzer::TechnicalIndicator::calculateStochastic(prices, periodK, periodD);
+
+    EXPECT_EQ(stochastic.K.size(), prices.size() - periodK + 1);
+    EXPECT_EQ(stochastic.D.size(), prices.size() - periodK - periodD + 2);
+
+    for (const auto& value : stochastic.K) 
+    {
+        EXPECT_GE(value, 0.0);
+        EXPECT_LE(value, 100.0);
+    }
+
+    for (const auto& value : stochastic.D) 
+    {
+        EXPECT_GE(value, 0.0);
+        EXPECT_LE(value, 100.0);
+    }
+}

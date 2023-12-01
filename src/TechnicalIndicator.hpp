@@ -2,6 +2,7 @@
 #define TECHNICALINDICATOR_HPP
 
 #include <vector>
+#include <algorithm>
 
 namespace analyzer
 {
@@ -66,6 +67,43 @@ namespace analyzer
 
             double rs = avgGain / avgLoss;
             return 100.0 - (100.0 / (1.0 + rs));
+        }
+
+        struct StochasticOscillator
+        {
+            std::vector<double> K;
+            std::vector<double> D;
+        };
+
+        static StochasticOscillator calculateStochastic(const std::vector<double>& prices, int periodK, int periodD)
+        {
+            StochasticOscillator stoch;
+
+            if (prices.size() < periodK)
+                return stoch;
+
+            for (size_t i = periodK - 1; i < prices.size(); ++i)
+            {
+                double low = *std::min_element(prices.begin() + i - periodK + 1, prices.begin() + i + 1);
+                double high = *std::max_element(prices.begin() + i - periodK + 1, prices.begin() + i + 1);
+                double close = prices[i];
+
+                double K = ((close - low) / (high - low)) * 100;
+                stoch.K.push_back(K);
+            }
+
+            for (size_t i = periodD - 1; i < stoch.K.size(); ++i)
+            {
+                double sum = 0.0;
+                for (size_t j = i - periodD + 1; j <= i; ++j)
+                {
+                    sum += stoch.K[j];
+                }
+                double D = sum / periodD;
+                stoch.D.push_back(D);
+            }
+
+            return stoch;
         }
     };
 }
