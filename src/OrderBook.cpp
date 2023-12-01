@@ -99,10 +99,30 @@ namespace transaction
 
             // Record the trade and update order volumes
             Trade trade(generateTradeId(), order1->getOrderId(), order2->getOrderId(), tradePrice, tradeVolume);
+            recordTransactionToFile(trade);
             order1->setVolume(order1->getVolume() - tradeVolume);
             order2->setVolume(order2->getVolume() - tradeVolume);
             order1->executeOrder();
             order2->executeOrder();
+        }
+    }
+
+    void OrderBook::recordTransactionToFile(const Trade& trade)
+    {
+        std::ofstream file("transactions.txt", std::ios::app);
+        if (file.is_open())
+        {
+            file << "Transaction ID: " << trade.getTradeId()
+                << " Buy order ID: " << trade.getBuyOrderId()
+                << " Sell order ID: " << trade.getSellOrderId()
+                << " Price: " << trade.getTradePrice()
+                << " Volume: " << trade.getTradeVolume()
+                << '\n';
+            file.close();
+        }
+        else
+        {
+            std::cerr << "Cannot open file." << std::endl;
         }
     }
 

@@ -6,6 +6,7 @@
 #include "Trade.hpp"
 #include "UserInterface.hpp"
 
+#include <fstream>
 #include <string>
 #include <map>
 #include <set>
@@ -44,6 +45,7 @@ namespace transaction
 
         void matchOrders();
         void executeTrade(const std::shared_ptr<Order>& order1, const std::shared_ptr<Order>& order2);
+        void recordTransactionToFile(const Trade& trade);
 
     public:
         OrderBook() { }
