@@ -85,3 +85,34 @@ TEST_F(DataAnalyzerTest, CalculateStochastic)
         EXPECT_LE(value, 100.0);
     }
 }
+
+TEST_F(DataAnalyzerTest, CalculateMACD)
+{
+    std::vector<double> prices = {145.69, 107.42, 187.66, 199.90, 124.81, 135.49, 152.30, 170.54, 103.04, 128.07,
+                                    101.61, 150.08, 154.91, 162.03, 182.10, 151.29, 100.64, 198.63, 146.99, 122.62,
+                                    115.54, 114.83, 105.03, 192.59, 156.49, 176.58, 180.14, 197.37, 183.11, 183.20,
+                                    100.77, 171.42, 135.47, 111.07, 198.88, 131.29, 183.81, 115.57, 113.84, 164.75};
+    auto macdResult = analyzer::TechnicalIndicator::calculateMACD(prices);
+
+    EXPECT_EQ(macdResult.MACDLine.size(), prices.size() - 25);
+    EXPECT_EQ(macdResult.SignalLine.size(), prices.size() - 33);
+    EXPECT_EQ(macdResult.Histogram.size(), macdResult.SignalLine.size());
+
+    for (const auto& value : macdResult.MACDLine)
+    {
+        EXPECT_GE(value, -200.0);
+        EXPECT_LE(value, 200.0);
+    }
+
+    for (const auto& value : macdResult.SignalLine)
+    {
+        EXPECT_GE(value, -200.0);
+        EXPECT_LE(value, 200.0);
+    }
+
+    for (const auto& value : macdResult.Histogram)
+    {
+        EXPECT_GE(value, -200.0);
+        EXPECT_LE(value, 200.0);
+    }
+}

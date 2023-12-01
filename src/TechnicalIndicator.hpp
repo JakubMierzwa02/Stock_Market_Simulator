@@ -24,7 +24,7 @@ namespace analyzer
             return sum / period;
         }
 
-        static double calculateEMA(const std::vector<double> &prices, int period)
+        static double calculateEMA(const std::vector<double> &prices, int period = 14)
         {
             if (prices.size() < period)
                 return 0.0;
@@ -40,7 +40,7 @@ namespace analyzer
             return ema;
         }
 
-        static double calculateRSI(const std::vector<double> &data, int period)
+        static double calculateRSI(const std::vector<double> &data, int period = 14)
         {
             if (data.size() < period + 1)
                 return 0.0;
@@ -104,6 +104,57 @@ namespace analyzer
             }
 
             return stoch;
+        }
+
+        struct MACDResult
+        {
+            std::vector<double> MACDLine;
+            std::vector<double> SignalLine;
+            std::vector<double> Histogram;
+        };
+
+        static MACDResult calculateMACD(const std::vector<double>& prices, int shortPeriod = 12, int longPeriod = 26, int signalPeriod = 9) 
+        {
+            MACDResult result;
+
+            if (prices.size() < longPeriod) 
+            {
+                return result;
+            }
+
+            std::vector<double> shortEMAs, longEMAs;
+            for (size_t i = 0; i <= prices.size() - longPeriod; ++i) 
+            {
+                std::vector<double> priceSliceShort(prices.begin() + i, prices.begin() + i + shortPeriod);
+                std::vector<double> priceSliceLong(prices.begin() + i, prices.begin() + i + longPeriod);
+                
+                double shortEma = calculateEMA(priceSliceShort, shortPeriod);
+                double longEma = calculateEMA(priceSliceLong, longPeriod);
+
+                shortEMAs.push_back(shortEma);
+                longEMAs.push_back(longEma);
+            }
+
+            for (size_t i = 0; i < shortEMAs.size(); ++i) 
+            {
+                result.MACDLine.push_back(shortEMAs[i] - longEMAs[i]);
+            }
+
+            std::vector<double> signalEMAs;
+            for (size_t i = 0; i <= result.MACDLine.size() - signalPeriod; ++i) 
+            {
+                std::vector<double> macdSlice(result.MACDLine.begin() + i, result.MACDLine.begin() + i + signalPeriod);
+                double signalEma = calculateEMA(macdSlice, signalPeriod);
+                signalEMAs.push_back(signalEma);
+            }
+
+            for (size_t i = 0; i < signalEMAs.size(); ++i) 
+            {
+                result.SignalLine.push_back(signalEMAs[i]);
+                result.Histogram.push_back(result.MACDLine[i + signalPeriod - 1] - signalEMAs[i]);
+            }
+
+            return result;
         }
     };
 }

@@ -23,16 +23,40 @@ namespace analyzer
 
         std::cout << "Stochastic Oscillator:" << std::endl;
         std::cout << "Line %K: ";
-        for (const auto& K : stochastic.K) 
+        for (const auto &K : stochastic.K)
         {
             std::cout << K << " ";
         }
         std::cout << std::endl;
 
         std::cout << "Line %D: ";
-        for (const auto& D : stochastic.D) 
+        for (const auto &D : stochastic.D)
         {
             std::cout << D << " ";
+        }
+        std::cout << std::endl;
+
+        TechnicalIndicator::MACDResult macdResult = TechnicalIndicator::calculateMACD(closingPrices);
+
+        std::cout << "MACD Results:" << std::endl;
+        std::cout << "MACD Line: ";
+        for (const auto &value : macdResult.MACDLine)
+        {
+            std::cout << value << " ";
+        }
+        std::cout << std::endl;
+
+        std::cout << "Signal Line: ";
+        for (const auto &value : macdResult.SignalLine)
+        {
+            std::cout << value << " ";
+        }
+        std::cout << std::endl;
+
+        std::cout << "Histogram: ";
+        for (const auto &value : macdResult.Histogram)
+        {
+            std::cout << value << " ";
         }
         std::cout << std::endl;
     }
