@@ -51,6 +51,9 @@ namespace transaction
         OrderBook() { }
 
         std::string generateTradeId();
+        void loadOrdersFromFile();
+        void updateOrdersFile();
+        std::shared_ptr<Order> parseOrderLine(const std::string& line);
         void registerTrader(const std::shared_ptr<Trader>& trader);
         Trader* findTraderById(const std::string& traderId);
         void addOrder(std::shared_ptr<Order> order);

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 enum class OrderType { LIMIT, MARKET };
 enum class OrderStatus { PENDING, COMPLETED, CANCELLED };
@@ -18,21 +19,23 @@ namespace transaction
         bool isBuyOrder;
         double price;
         unsigned int volume;
-        OrderStatus status;
 
     public:
         Order(std::string id, std::string traderId, OrderType orderType, bool isBuy, double orderPrice, unsigned int orderVolume)
-            : orderId(id), traderId(traderId), type(orderType), isBuyOrder(isBuy), price(orderPrice), volume(orderVolume), status(OrderStatus::PENDING)
+            : orderId(id), traderId(traderId), type(orderType), isBuyOrder(isBuy), price(orderPrice), volume(orderVolume) { }
+
+        virtual ~Order() { }
+
+        virtual std::string toString() const
         {
-
+            std::ostringstream ss;
+            ss << "Order ID: " << orderId 
+                << ", Trader ID: " << traderId
+                << ", Type: " << (isBuyOrder ? "Buy" : "Sell")
+                << ", Price: " << price
+                << ", Volume: " << volume;
+            return ss.str();
         }
-
-        virtual ~Order()
-        {
-
-        }
-
-        virtual void executeOrder() = 0;
 
         // Getters
         std::string getOrderId() const { return orderId; }
@@ -41,12 +44,10 @@ namespace transaction
         bool getIsBuyOrder() const { return isBuyOrder; }
         double getPrice() const { return price; }
         unsigned int getVolume() const { return volume; }
-        OrderStatus getStatus() const { return status; }
 
         // Setters
         void setPrice(double newPrice) { price = newPrice; }
         void setVolume(unsigned int newVolume) { volume = newVolume; }
-        void setStatus(OrderStatus newStatus) { status = newStatus; }
     };
 }
 

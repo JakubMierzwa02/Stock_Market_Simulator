@@ -11,16 +11,7 @@ namespace transaction
 
     public:
         MarketOrder(std::string id, std::string traderId, bool isBuy, double orderPrice, unsigned int orderVolume)
-            : Order(id, traderId, OrderType::MARKET, isBuy, orderPrice, orderVolume)
-            {
-
-            }
-
-        void executeOrder() override 
-        {
-            std::cout << "Executing Market Order: " << getOrderId() << std::endl;
-            setStatus(OrderStatus::COMPLETED);
-        }
+            : Order(id, traderId, OrderType::MARKET, isBuy, orderPrice, orderVolume) { }
     };
 }
 

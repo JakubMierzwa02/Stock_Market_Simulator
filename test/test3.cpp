@@ -25,14 +25,6 @@ TEST_F(TransactionSimulationTest, GenerateTradeId)
     EXPECT_NE(id1, id2);
 }
 
-TEST_F(TransactionSimulationTest, MatchOrders)
-{
-    orderBook.addOrder(buyOrder);
-    orderBook.addOrder(sellOrder);
-    EXPECT_EQ(buyOrder->getStatus(), OrderStatus::COMPLETED);
-    EXPECT_EQ(sellOrder->getStatus(), OrderStatus::COMPLETED);
-}
-
 TEST_F(TransactionSimulationTest, ExecuteTrade)
 {
     //orderBook.executeTrade(buyOrder, sellOrder);

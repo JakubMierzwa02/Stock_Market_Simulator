@@ -61,6 +61,7 @@ namespace transaction
             if (!matched)
                 break;
         }
+        updateOrdersFile();
     }
 
     // Function to execute a trade between two orders
@@ -102,8 +103,6 @@ namespace transaction
             recordTransactionToFile(trade);
             order1->setVolume(order1->getVolume() - tradeVolume);
             order2->setVolume(order2->getVolume() - tradeVolume);
-            order1->executeOrder();
-            order2->executeOrder();
         }
     }
 
@@ -124,6 +123,107 @@ namespace transaction
         {
             std::cerr << "Cannot open file." << std::endl;
         }
+    }
+
+    void OrderBook::loadOrdersFromFile()
+    {
+        std::ifstream file("orders.txt");
+        std::string line;
+
+        if (file.is_open())
+        {
+            while (getline(file, line))
+            {
+                std::shared_ptr<Order> order = parseOrderLine(line);
+                if (order)
+                {
+                    if (order->getIsBuyOrder())
+                    {
+                        buyOrders.insert(order);
+                    }
+                    else
+                    {
+                        sellOrders.insert(order);
+                    }
+                }
+            }
+            file.close();
+        }
+        else
+        {
+            std::cerr << "Cannot open order.txt file." << std::endl;
+        }
+    }
+
+    void OrderBook::updateOrdersFile()
+    {
+        std::ofstream file("orders.txt");
+        if (file.is_open())
+        {
+            for (const auto& order : buyOrders)
+            {
+                file << order->toString() << '\n';
+            }
+
+            for (const auto& order : sellOrders)
+            {
+                file << order->toString() << '\n';
+            }
+        }
+        else
+        {
+            std::cerr << "Cannot open orders.txt file." << std::endl;
+        }
+    }
+
+    std::shared_ptr<Order> OrderBook::parseOrderLine(const std::string& line)
+    {
+        std::istringstream iss(line);
+        std::string part, orderId, traderId, typeStr;
+        double price = 0.0;
+        unsigned int volume = 0;
+        bool isBuyOrder = false;
+
+        // Parse line
+        try 
+        {
+            while (getline(iss, part, ',')) 
+            {
+                std::istringstream partStream(part);
+                std::string key, value;
+                getline(partStream, key, ':');
+                getline(partStream, value);
+                value.erase(0, value.find_first_not_of(" "));
+
+                if (key.find("Order ID") != std::string::npos) 
+                {
+                    orderId = value;
+                }
+                else if (key.find("Trader ID") != std::string::npos)
+                {
+                    traderId = value;
+                }
+                else if (key.find("Type") != std::string::npos) 
+                {
+                    typeStr = value;
+                    isBuyOrder = (typeStr.find("Buy") != std::string::npos);
+                } 
+                else if (key.find("Price") != std::string::npos) 
+                {
+                    price = std::stod(value);
+                } 
+                else if (key.find("Volume") != std::string::npos) 
+                {
+                    volume = std::stoul(value);
+                }
+            }
+        } 
+        catch (const std::exception& e) 
+        {
+            std::cerr << "Error line: " << line << "\n";
+            return nullptr;
+        }
+        return std::make_shared<Order>(orderId, traderId, OrderType::LIMIT, isBuyOrder, price, volume);
     }
 
     // Function to register a trader in the order book
@@ -185,8 +285,7 @@ namespace transaction
         {
             auto order = *orderIter;
             std::cout << "ID: " << order->getOrderId() << ", Type: " << (order->getIsBuyOrder() ? "BUY" : "SELL")
-                      << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume()
-                      << ", Status: " << (order->getStatus() == OrderStatus::PENDING ? "PENDING" : (order->getStatus() == OrderStatus::COMPLETED ? "COMPLETED" : "CANCELLED")) << std::endl;
+                      << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume() << std::endl;
         }
         // Reset text color
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
@@ -201,8 +300,7 @@ namespace transaction
         for (const auto &order : buyOrders)
         {
             std::cout << "ID: " << order->getOrderId() << ", Type: " << (order->getIsBuyOrder() ? "BUY" : "SELL")
-                      << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume()
-                      << ", Status: " << (order->getStatus() == OrderStatus::PENDING ? "PENDING" : (order->getStatus() == OrderStatus::COMPLETED ? "COMPLETED" : "CANCELLED")) << std::endl;
+                      << ", Price: " << order->getPrice() << ", Volume: " << order->getVolume() << std::endl;
         }
         // Reset text color
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
