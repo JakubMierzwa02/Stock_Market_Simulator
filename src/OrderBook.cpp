@@ -89,13 +89,17 @@ namespace transaction
             double tradeAmount = tradePrice * tradeVolume;
             if (order1->getIsBuyOrder())
             {
-                trader1->addAssets(tradeVolume);
+                trader1->addAssets("BTC", tradeVolume);
+                trader1->setCashBalance(trader1->getCashBalance() - tradeAmount);
                 trader2->addFunds(tradeAmount);
+                trader2->removeAssets("BTC", tradeVolume);
             }
             else
             {
-                trader2->addAssets(tradeVolume);
+                trader2->addAssets("BTC", tradeVolume);
+                trader2->setCashBalance(trader1->getCashBalance() - tradeAmount);
                 trader1->addFunds(tradeAmount);
+                trader1->removeAssets("BTC", tradeVolume);
             }
 
             // Record the trade and update order volumes

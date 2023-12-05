@@ -16,12 +16,14 @@ set(Sources
     src/Trader.cpp
     src/OrderBook.cpp
     src/UserInterface.cpp
+    src/Portfolio.cpp
 )
 
 set(Headers
     src/Trader.hpp
     src/OrderBook.hpp
     src/UserInterface.hpp
+    src/Portfolio.hpp
 )
 
 add_executable(This ${Sources} ${Headers})

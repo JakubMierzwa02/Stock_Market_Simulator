@@ -50,26 +50,26 @@ TEST_F(TransactionSimulationTest, GenerateOrderId)
 
 TEST_F(TransactionSimulationTest, ReserveFunds)
 {
-    double initialBalance = trader->getBalance();
+    double initialBalance = trader->getCashBalance();
     double reserveAmount = 500.0;
     trader->reserveFunds(reserveAmount);
-    EXPECT_EQ(trader->getBalance(), initialBalance - reserveAmount);
+    EXPECT_EQ(trader->getCashBalance(), initialBalance - reserveAmount);
 }
 
 TEST_F(TransactionSimulationTest, AddFunds)
 {
-    double initialBalance = trader->getBalance();
+    double initialBalance = trader->getCashBalance();
     double addAmount = 200.0;
     trader->addFunds(addAmount);
-    EXPECT_EQ(trader->getBalance(), initialBalance + addAmount);
+    EXPECT_EQ(trader->getCashBalance(), initialBalance + addAmount);
 }
 
 TEST_F(TransactionSimulationTest, AddAndRemoveAssets)
 {
     unsigned int initialAssets = trader->getAssets();
     unsigned int addAmount = 10;
-    trader->addAssets(addAmount);
+    trader->addAssets("BTC", addAmount);
     EXPECT_EQ(trader->getAssets(), initialAssets + addAmount);
-    trader->removeAssets(5);
+    trader->removeAssets("BTC", 5);
     EXPECT_EQ(trader->getAssets(), initialAssets + addAmount - 5);
 }

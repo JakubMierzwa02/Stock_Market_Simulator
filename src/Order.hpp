@@ -6,7 +6,6 @@
 #include <sstream>
 
 enum class OrderType { LIMIT, MARKET };
-enum class OrderStatus { PENDING, COMPLETED, CANCELLED };
 
 namespace transaction
 {
