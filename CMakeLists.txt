@@ -13,9 +13,14 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(Sources
     src/main.cpp
+<<<<<<< HEAD
     src/CSVImporter.cpp
     src/DataImporter.cpp
     src/DataValidator.cpp
+=======
+    src/DataAnalyzer.cpp
+    src/StatisticalProcessor.cpp
+>>>>>>> data-analyzer
 )
 
 set(Headers
