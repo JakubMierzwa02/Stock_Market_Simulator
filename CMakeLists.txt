@@ -14,6 +14,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 set(Sources
     src/main.cpp
 <<<<<<< HEAD
+<<<<<<< HEAD
     src/CSVImporter.cpp
     src/DataImporter.cpp
     src/DataValidator.cpp
@@ -29,9 +30,22 @@ set(Headers
     src/IDataImporter.hpp
     src/StockData.hpp
     src/DataValidator.hpp
+=======
+    src/Trader.cpp
+    src/OrderBook.cpp
+    src/UserInterface.cpp
+    src/Portfolio.cpp
 )
 
-add_executable(This ${Sources})
+set(Headers
+    src/Trader.hpp
+    src/OrderBook.hpp
+    src/UserInterface.hpp
+    src/Portfolio.hpp
+>>>>>>> transaction-simulation
+)
+
+add_executable(This ${Sources} ${Headers})
 
 target_link_libraries(This ${Boost_LIBRARIES})
 
