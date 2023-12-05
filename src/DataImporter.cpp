@@ -18,7 +18,7 @@ namespace importer
         {
             if (!dataValidator.validate(data)) 
             {
-                // Handle invalid data
+                std::cerr << "Data validation error." << std::endl;
             }
         }
     }
